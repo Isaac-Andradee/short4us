@@ -6,7 +6,7 @@ import com.isaacandrade.keygeneratorservice.keygen.application.snowflake.excepti
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// This test class covers the functionality of the RegressiveClockException class,
+// This test class covers the functionality of the RegressiveClockException class
 class RegressiveClockExceptionTest {
 
     @Test
