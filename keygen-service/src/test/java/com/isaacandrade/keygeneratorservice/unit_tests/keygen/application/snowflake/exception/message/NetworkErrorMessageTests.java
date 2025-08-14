@@ -43,4 +43,26 @@ public class NetworkErrorMessageTests {
         assertEquals("Network Error!", exception.getMessage());
         assertTrue(exception instanceof RuntimeException);
     }
+
+    @Test
+    void setStatus_shouldUpdateStatusField() {
+        
+        message = new NetworkErrorMessage(0, null);
+        int newStatus = 500;
+
+        message.setStatus(newStatus);
+
+        assertEquals(newStatus, message.getStatus(), "Status should be updated to the value set");
+    }
+
+    @Test
+    void setMessage_shouldUpdateMessageField() {
+        
+        message = new NetworkErrorMessage(0, null);
+        String newMessage = "Service temporarily unavailable";
+
+        message.setMessage(newMessage);
+
+        assertEquals(newMessage, message.getMessage(), "Message should be updated to the value set");
+    }
 }
