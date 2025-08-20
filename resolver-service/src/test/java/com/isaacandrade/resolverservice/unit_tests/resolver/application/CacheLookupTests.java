@@ -41,4 +41,12 @@ public class CacheLookupTests {
         cacheLookup.save(shortKey, urlMapping);
         assertEquals(urlMapping, cacheLookup.get(shortKey));
     }
+
+    @Test
+    void shouldReturnNull_when_savingNullUrl() {
+        String shortKey = "xdSc2ts";
+        cacheLookup.save(shortKey, null);
+        UrlMapping result = cacheLookup.get(shortKey);
+        assertEquals(null, result); 
+    }
 }
