@@ -1,5 +1,6 @@
 package com.isaacandrade.resolverservice.unit_tests.exception.message;
 
+import com.isaacandrade.resolverservice.exception.KeyNotFoundException;
 import com.isaacandrade.resolverservice.exception.message.KeyNotFoundMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,5 +20,10 @@ public class KeyNotFoundMessageTest {
         msg.setMessage("Changed");
         assertEquals(400, msg.getStatus());
         assertEquals("Changed", msg.getMessage());
+    }
+    @Test
+    void shouldHaveDefaultMessage() {
+        KeyNotFoundException ex = new KeyNotFoundException();
+        assertEquals("Key Not Found", ex.getMessage());
     }
 }
