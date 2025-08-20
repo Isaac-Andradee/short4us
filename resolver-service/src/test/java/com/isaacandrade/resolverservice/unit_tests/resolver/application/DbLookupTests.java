@@ -33,4 +33,5 @@ public class DbLookupTests {
         when(dbLookup.getFromDb(key)).thenThrow(new KeyNotFoundException("Key " + key + " Not Found"));
         assertThrows(KeyNotFoundException.class, () -> dbLookup.getFromDb(key));
     }
+
 }
