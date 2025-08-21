@@ -98,6 +98,12 @@
                                     </limits>
                                 </rule>
                             </rules>
+							<excludes>
+                    			<exclude>**/Constants*.class</exclude>
+                    			<exclude>**/Helper*.class</exclude>
+                    			<exclude>**/Util*.class</exclude>
+                    			<exclude>**/config/**</exclude>
+                			</excludes>
                         </configuration>
                     </execution>
                     <execution>
