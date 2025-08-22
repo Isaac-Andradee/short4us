@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,21 +28,19 @@ class ResolverUseCaseTest {
     @Mock
     private DbLookup dbLookup;
 
-    @InjectMocks
-    private ResolverUseCase resolverUseCase;
-
     @Mock
     private UrlMapping urlMapping;
 
+    @InjectMocks
+    private ResolverUseCase resolverUseCase;
 
     private static final String SHORT_KEY = "abc123";
     private static final String LONG_URL = "https://site.com";
-
+    private static final UrlMapping staticUrlMapping = new UrlMapping(SHORT_KEY, LONG_URL, SHORT_KEY);
 
     @Test
     void shouldReturnUrlFromCache_whenCacheHit() {
-        UrlMapping mapping = new UrlMapping(SHORT_KEY, LONG_URL, SHORT_KEY);
-        when(cacheLookup.get(SHORT_KEY)).thenReturn(mapping);
+        when(cacheLookup.get(SHORT_KEY)).thenReturn(staticUrlMapping);
         String result = resolverUseCase.resolve(SHORT_KEY);
         assertEquals(LONG_URL, result);
         verify(dbLookup, never()).getFromDb(anyString());
@@ -52,13 +49,12 @@ class ResolverUseCaseTest {
 
     @Test
     void shouldReturnUrlFromDbAndCacheIt_whenCacheMiss() {
-        UrlMapping mapping = new UrlMapping(SHORT_KEY, LONG_URL, SHORT_KEY);
         when(cacheLookup.get(SHORT_KEY)).thenReturn(null);
-        when(dbLookup.getFromDb(SHORT_KEY)).thenReturn(mapping);
+        when(dbLookup.getFromDb(SHORT_KEY)).thenReturn(staticUrlMapping);
         String result = resolverUseCase.resolve(SHORT_KEY);
         assertEquals(LONG_URL, result);
         verify(dbLookup).getFromDb(SHORT_KEY);
-        verify(cacheLookup).save(SHORT_KEY, mapping);
+        verify(cacheLookup).save(SHORT_KEY, staticUrlMapping);
     }
 
     @Test
@@ -72,28 +68,28 @@ class ResolverUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should resolve URL from cache when mapping exists in cache")
-    void resolve_WhenUrlMappingExistsInCache_ShouldReturnLongUrlFromCache() {
-        
+    @DisplayName("Should resolve URL from cache when urlMapping exists in cache")
+    void resolve_WhenUrlurlMappingExistsInCache_ShouldReturnLongUrlFromCache() {
+
         when(urlMapping.getLongUrl()).thenReturn(LONG_URL);
         when(cacheLookup.get(SHORT_KEY)).thenReturn(urlMapping);
 
         String result = resolverUseCase.resolve(SHORT_KEY);
 
         assertEquals(LONG_URL, result);
-        
+
         // Verify cache was checked
         verify(cacheLookup, times(1)).get(SHORT_KEY);
-        
+
         // Verify database was not queried since cache hit occurred
         verify(dbLookup, never()).getFromDb(any());
-        
-        // Verify cache was not updated since mapping was already in cache
+
+        // Verify cache was not updated since urlMapping was already in cache
         verify(cacheLookup, never()).save(any(), any());
     }
 
     @Test
-    @DisplayName("Should resolve URL from database when mapping does not exist in cache")
+    @DisplayName("Should resolve URL from database when urlMapping does not exist in cache")
     void resolve_WhenUrlMappingNotInCache_ShouldReturnLongUrlFromDatabaseAndSaveToCache() {
 
         when(urlMapping.getLongUrl()).thenReturn(LONG_URL);
@@ -103,21 +99,21 @@ class ResolverUseCaseTest {
         String result = resolverUseCase.resolve(SHORT_KEY);
 
         assertEquals(LONG_URL, result);
-        
+
         // Verify cache was checked first
         verify(cacheLookup, times(1)).get(SHORT_KEY);
-        
+
         // Verify database was queried after cache miss
         verify(dbLookup, times(1)).getFromDb(SHORT_KEY);
-        
-        // Verify the retrieved mapping was saved to cache
+
+        // Verify the retrieved urlMapping was saved to cache
         verify(cacheLookup, times(1)).save(SHORT_KEY, urlMapping);
     }
 
     @Test
     @DisplayName("Should verify correct interaction order when cache miss occurs")
     void resolve_WhenCacheMiss_ShouldFollowCorrectExecutionOrder() {
-        
+
         when(urlMapping.getLongUrl()).thenReturn(LONG_URL);
         when(cacheLookup.get(SHORT_KEY)).thenReturn(null);
         when(dbLookup.getFromDb(SHORT_KEY)).thenReturn(urlMapping);
@@ -134,11 +130,11 @@ class ResolverUseCaseTest {
     @Test
     @DisplayName("Should handle different short keys correctly")
     void resolve_WithDifferentShortKeys_ShouldPassCorrectKeyToAllMethods() {
-        
+
         String customShortKey = "xyz789";
         String customLongUrl = "https://www.different-example.com";
         UrlMapping customUrlMapping = mock(UrlMapping.class);
-        
+
         when(customUrlMapping.getLongUrl()).thenReturn(customLongUrl);
         when(cacheLookup.get(customShortKey)).thenReturn(null);
         when(dbLookup.getFromDb(customShortKey)).thenReturn(customUrlMapping);
@@ -146,15 +142,15 @@ class ResolverUseCaseTest {
         String result = resolverUseCase.resolve(customShortKey);
 
         assertEquals(customLongUrl, result);
-        verify(cacheLookup).get(eq(customShortKey));
-        verify(dbLookup).getFromDb(eq(customShortKey));
-        verify(cacheLookup).save(eq(customShortKey), eq(customUrlMapping));
+        verify(cacheLookup).get(customShortKey);
+        verify(dbLookup).getFromDb(customShortKey);
+        verify(cacheLookup).save(customShortKey, customUrlMapping);
     }
 
     @Test
     @DisplayName("Should verify UrlMapping.getLongUrl() is called exactly once")
     void resolve_ShouldCallGetLongUrlOnlyOnce() {
-        
+
         when(urlMapping.getLongUrl()).thenReturn(LONG_URL);
         when(cacheLookup.get(SHORT_KEY)).thenReturn(urlMapping);
 
