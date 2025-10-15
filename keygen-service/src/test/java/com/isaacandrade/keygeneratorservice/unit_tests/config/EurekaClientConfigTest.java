@@ -34,8 +34,9 @@ class EurekaClientConfigTest {
 
     @Test
     void eurekaInstanceConfigBean_shouldReturnConfiguredBean() throws Exception {
-        when(env.getProperty("port", "8080")).thenReturn("8081");
-        when(env.getProperty("server.port", "8081")).thenReturn("8081");
+        when(env.getProperty(eq("port"), anyString())).thenReturn("8081");
+        when(env.getProperty(eq("server.port"), anyString())).thenReturn("8081");
+        when(env.getProperty(eq("server.port"), anyString())).thenReturn("8081");
 
         InetUtils realInetUtils = new InetUtils(new InetUtilsProperties());
 
